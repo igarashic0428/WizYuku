@@ -1,0 +1,431 @@
+
+@startuml
+
+folder Audio {
+    enum BGMNum
+  {
+    +BGMStage1
+  }
+  enum SENum
+  {
+    +Button
+    +Explosion
+    +FireBallGenerate
+    +GameOver
+    +Goal
+    +HitAttackPoint
+    +Jump
+  }
+  class AudioManager {
+    *Awake()
+    *Start()
+    +PlayBGM()
+    +StopBGM()
+    +PlaySE()
+  }
+}
+
+
+folder Cameras {
+  note top of CameraController
+  <概要>
+  Playerに追従
+  end note
+  class CameraController {
+    +IsRaycastHitVec2To3d(Vector2)
+    +GetRayHitPosVec3()
+    +GetRayHitObjTag()
+    +GetRayHitObjPos()
+    +GetRayHitGameObject():GameObject
+    --
+    *Start()
+    *LateUpdate()
+  }
+}
+
+folder Enemy01s {
+  enum Enemy01State {
+    +NotFindSoIdle
+    +NotFindSoWalk
+    +Find
+    +Chase
+    +Attack01Charge
+    +Attack01
+    +Recoil
+    +NotFound
+    +Die
+    +Max
+  }
+  class Enemy01Controller {
+    <struct Parameters>
+    +Hp
+    +Power
+    ==
+    +isJump
+    +AnimState
+    --
+    +GetPos() : Vector3
+    +GetHp() : float
+    +GetHpMax() : float
+    +GetChargeGauge() : float
+    --
+    *Start()
+    *FixedUpdate()
+    --
+    <内部関数>
+    -NotFindSoIdle()
+    -NotFindSoWalk()
+    -FindingPlayer()
+    -Find()
+    -ChasePlayer()
+    -ChaseToAttack01Charge()
+    -Attack01Charge()
+    -Attack01()
+    -Recoil()
+    -ChaseToNotFound()
+    -NotFound()
+    -FallCheck()
+    -DieCheck()
+    -Die()
+    -RecieveAttackCheck()
+    -PhysicsUpdate()
+    -Gravity()
+    -Animator()
+  }
+
+  class Enemy01ReceiveDamage {
+    +GetIsReceiveDamage()
+    +GetDamege()
+    ==
+    *OnTriggerEnter(Collider)
+    *FixedUpdate()
+  }
+
+  folder Enemy01Attacks {
+    class Enemy01Attack01Controller {
+      +SetPower()
+      +SetTag()
+      +GetPower()
+      --
+      *Start()
+      *FixedUpdate()
+    }
+  }
+
+  class EnemyHpCanvasCntroller {
+      *Start()
+      *Update()
+  }
+}
+
+
+folder GameDirectors {
+  class TitleManager {
+    *Start()
+    *PresssStart() ※OnClickに設定する
+    *Update()
+  }
+
+  note top of SortingLayerController
+  <概要>
+  SpriteのSortingLayerを
+  Z軸に応じて並び変える
+  end note
+  class SortingLayerController{
+    *Start()
+    *LateUpdate()
+  }
+
+  class Stage1Manager{
+    +SetEnemyDeadCountInc()
+    *Start()
+    *Update()
+  }
+}
+
+
+folder Goals {
+  note top of GoalController
+  <概要>
+  Playerに当たるとisGoal=ON
+  end note
+  class GoalController{
+    +isGoal
+    +GetIsGoal()
+    +SetInActiveGoal()
+    +SetActiveGoal()
+    *Start()
+    *OnTriggerEnter(Collider)
+  }
+}
+
+
+folder Inputs {
+  class InputController {
+    +isTap:bool
+    +isUpFlick:bool
+    +flickAngle:float
+    ==
+    +GetIsTap():bool
+    +GetTapPos3d():Vector3
+    +GetTapObjTag():string
+    +GetTapObjPos():Vector3
+    +GetTapGameObject():GameObject
+    +GetIsUpFlick():bool
+    +GetInputisRightClick():bool
+    --
+    +UpdateInput():void
+    --
+    *Start()
+  }
+}
+
+folder MapObjects {
+  note top of SpriteFenceController
+  <概要>
+  背後にPlayerがいると半透明化
+  end note
+  class SpriteFenceController {
+    *Start()
+    *Update()
+  }
+}
+
+folder Particles {
+  note top of ParticleController
+  <概要>
+  Particle停止後に破棄
+  (Particle自体はInspectorで設定)
+  end note
+  class ParticleController {
+    *OnEnable()
+    -CheckIfAlive()
+  }
+}
+
+
+folder Players {
+  note top of PlayerScheduler
+  <制約>
+  以下の順でコール
+  1.UpdateInput()
+  2.UpdatePlayer()
+  end note
+  class PlayerScheduler {
+    *Start()
+    *Update()
+    -Scheduler()
+  }
+
+  enum PlayersState {
+    +Idle
+    +Run
+    +Attack01
+    +Attack02
+    +Charge
+    +JumpUp
+    +JumpDown
+    +Fall
+    +Hurt
+    +HurtEnd
+    +Die
+    +Goal
+  }
+
+  class PlayerController {
+    <struct Parameters>
+    +hp
+    +power
+    ==
+    +isGround
+    +isJump
+    +animState
+    ==
+    +GetPos():Vector3
+    +GetHp():int
+    +GetHpMax():float
+    +GetChargeGauge():float
+    +GetName():string
+    +GetIsGameOver():bool
+    +InitPlayerHp():void
+    --
+    *Start()
+    ==
+    *FixedUpdate()
+    ..
+    <FixedUpdateからコール>
+    -GroundCheck()
+    -RcieveAttackCheck()
+    -Junping()
+    -UpdateVelocity()
+    -Gravity()
+    -FieldGuard()
+    ==
+    +UpdatePlayer():void
+    ..
+    <UpdatePlayerからコール>
+    -Move()
+    -Jump()
+    -Hurt()
+    -Attack()
+    -GenerateFireBall():IEnumerator
+    -FallCheck()
+    -DieCheck()
+    -GoalCheck()
+    -UpdateAnimator()
+  }
+  class PlayerGroundCheck {
+    *OnTriggerEnter(Collider)
+    *OnTriggerStay(Collider)
+    *OnTriggerExit(Collider)
+    *FixedUpdate()
+    +GetIsGround()
+  }
+  class PlayerReceiveDamage{
+    +GetRecieveAttack()
+    +GetEnemyAttackPos()
+    +GetDamege()
+    ==
+    *OnTriggerEnter(Collider)
+    *FixedUpdate()
+  }
+
+  folder PlayerAttacks {
+   class PlayerAttack01Controller {
+     +SetPos(Vector3):void
+     +SetPower(int):void
+     +SetTargetObj(GameObject):void
+     +SetTag(string):void
+     +GetPower():int
+     --
+     -Start()
+     -Update()
+     -FixedUpdate()
+     -OnTriggerEnter(Collider)
+     -OneFrameLateDestroy():IEnumerator
+   }
+  }
+
+}
+
+folder TargetRings {
+  class TargetRingController{
+    *OnEnable()
+    *FixedUpdate()
+    -SelfInactive():IEnumerator
+    +SetGameObject(GameObject):void
+    +Setpos(Vector3):void
+    +SetActive():void
+    +SetInactive():void
+  }
+}
+
+folder DestinationPoints {
+  class DestinationPointController{
+    *FixedUpdate()
+    +Setpos(Vector3):void
+    +SetActive():void
+    +SetInactive():void
+  }
+}
+
+folder UIs {
+  class FadeImageController {
+    +StartFadeIn()
+    +isFadeInComplete()
+    +StartFadeOut()
+    +isFadeOutComplete()
+    *Start()
+    *Update()
+    -FadeInUpdate()
+    -FadeInComplete()
+    -FadeOutUpdate()
+    -FadeOutComplete()
+  }
+
+  class MissionBoardController {
+    +DrawMission(int Nokori)
+  }
+
+  class PlayerHpBarController {
+    *Start()
+    *Update()
+  }
+
+  class ReStartMenuCanvasController {
+    +DrawGoalMenu()
+    +DrawGameOverMenu()
+    *Start()
+    *PressReStart() ※OnClickに設定する
+    *Update()
+  }
+
+  class TimerBoardController {
+    +SetStop()
+    *Start()
+    *Update()
+    -DrawTimer(int t)
+  }
+}
+
+'==========================================
+'クラスの参照関係
+
+'GameDirectors
+TitleManager                 -down->    FadeImageController
+'TitleManager                 --->       AudioManager :SE再生
+Stage1Manager                --->       GoalController    :SetActive()\nGetIsGoal()　　　　　
+Stage1Manager                --->       PlayerController  :GetIsGameOver()　　　　　
+Stage1Manager                --->       MissionBoardController
+Stage1Manager                --->       ReStartMenuCanvasController
+Stage1Manager                --->       TimerBoardController
+'Stage1Manager                --->       AudioManager :BGM再生
+'SortingLayerController       --->       CameraController:位置,描画サイズ参照
+
+'Cameras
+'CameraController             -down->    PlayerController  :位置参照
+
+'Inputs
+InputController              -up->      CameraController :Raycast関連を参照　　　　　
+
+'Players
+PlayerScheduler              -down->    InputController   :UpdateInput()　　　　　
+PlayerScheduler              -down->    PlayerController  :UpdatePlayer()　　　　　
+PlayerController             -up->      InputController   :\n\n入力情報を参照　　　　　
+PlayerController             -left->    PlayersState
+PlayerController             -down->    PlayerGroundCheck
+PlayerController             -down->    PlayerReceiveDamage
+PlayerController             -down->    PlayerAttack01Controller :攻撃情報Set　　　　　\n\n
+PlayerController             -down-->   TargetRingController
+PlayerController             -down-->   DestinationPointController
+PlayerController             -down-->   GoalController
+'PlayerController             --->       AudioManager :SE再生
+PlayerReceiveDamage          --->       Enemy01Attack01Controller :攻撃力を参照　　　　　
+'PlayerAttack01Controller     --->       AudioManager :SE再生
+
+'Enemy01s
+Enemy01Controller            -left->    Enemy01State
+Enemy01Controller            -down->    Enemy01ReceiveDamage
+Enemy01Controller            -down->    Enemy01Attack01Controller :攻撃情報Set　　　　　
+Enemy01Controller            --->       PlayerController          :GetPos()　　　　　
+Enemy01ReceiveDamage         --->       PlayerAttack01Controller  :攻撃力を参照　　　　　
+'Enemy01Controller            --->       Stage1Manager:SetEnemyDeadCountInc()
+'EnemyHpCanvasCntroller       --->       Enemy01Controller :GetHp()
+
+'MapObjects
+'SpriteFenceController        -up-->     PlayerController
+
+'Goals
+'GoalController               -up-->     PlayerController  :GetName()
+
+'UIs
+'PlayerHpBarController        --->       PlayerController  :GetHp()
+
+ReStartMenuCanvasController  -down->    FadeImageController
+'ReStartMenuCanvasController  --->       AudioManager :SE再生
+
+'Audio
+AudioManager                 -up->      BGMNum
+AudioManager                 -up->      SENum
+
+@enduml

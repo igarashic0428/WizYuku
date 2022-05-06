@@ -1,0 +1,116 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - TagGround
+  - TagPlayer
+  - TagEnemy
+  - TagEnemyAttack
+  - TagSpriteFence
+  - TagPlayerAttack
+  - TagDestinationPoint
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - 
+  - Enemy
+  - Ground
+  - 
+  - LetterBox
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: SortingLayer01
+    uniqueID: 3660709699
+    locked: 0
+  - name: SortingLayer02
+    uniqueID: 2752870203
+    locked: 0
+  - name: SortingLayer03
+    uniqueID: 2559977555
+    locked: 0
+  - name: SortingLayer04
+    uniqueID: 3096593235
+    locked: 0
+  - name: SortingLayer05
+    uniqueID: 4162737109
+    locked: 0
+  - name: SortingLayer06
+    uniqueID: 855466391
+    locked: 0
+  - name: SortingLayer07
+    uniqueID: 3837937975
+    locked: 0
+  - name: SortingLayer08
+    uniqueID: 2951083743
+    locked: 0
+  - name: SortingLayer09
+    uniqueID: 972110447
+    locked: 0
+  - name: SortingLayer09
+    uniqueID: 2420674501
+    locked: 0
+  - name: SortingLayer10
+    uniqueID: 2532857719
+    locked: 0
+  - name: SortingLayer11
+    uniqueID: 1119037105
+    locked: 0
+  - name: SortingLayer12
+    uniqueID: 2202872901
+    locked: 0
+  - name: SortingLayer13
+    uniqueID: 1392758065
+    locked: 0
+  - name: SortingLayer14
+    uniqueID: 2691112549
+    locked: 0
+  - name: SortingLayer15
+    uniqueID: 986228657
+    locked: 0
+  - name: SortingLayer16
+    uniqueID: 18893839
+    locked: 0
+  - name: SortingLayer17
+    uniqueID: 3185364633
+    locked: 0
+  - name: SortingLayer18
+    uniqueID: 3442487237
+    locked: 0
+  - name: SortingLayer19
+    uniqueID: 3688811043
+    locked: 0
+  - name: SortingLayer20
+    uniqueID: 1674182333
+    locked: 0
+  - name: SortingLayerUI
+    uniqueID: 4257587817
+    locked: 0

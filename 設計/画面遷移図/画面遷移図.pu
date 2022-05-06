@@ -1,0 +1,32 @@
+@startuml
+hide empty description
+
+[*] --> TitleScene : GamePlay起動
+
+TitleScene -> Stage1Scene : Start
+TitleScene <- Stage1Scene : ReStart
+
+state TitleScene {
+  Title:タイトルの表示
+  Title:ボタンの配置
+
+  Infomation : 操作説明
+  Infomation : クレジットの表示
+  Option : 音量の変更
+
+  [*]-->Title
+  Title-down->Infomation
+  Title<-Infomation
+  Title-down->Option
+  Title<-Option
+  Title->[*] : Start
+}
+
+state Stage1Scene {
+  [*]-->GamePlay
+  GamePlay-down->GameOver
+  GameOver-down->[*] : ReStart
+  GamePlay-down->Goal
+  Goal-down->[*] : ReStart
+}
+@enduml

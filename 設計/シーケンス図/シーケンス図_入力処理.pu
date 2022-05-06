@@ -1,0 +1,86 @@
+@startuml
+
+participant PlayerScheduler   as ps
+participant PlayerController  as pc
+participant InputController   as ic
+participant CameraController  as cc
+
+== Update ==
+ps -> ic : UpdateInput()
+activate ic
+    ic -> cc : IsRaycastHitVec2To3d()
+    activate cc
+      note right of cc : マウス座標から3D座標に変換可能か判定
+      ic <- cc : 判定結果
+    deactivate cc
+
+    note right of ic
+    入力情報を判定
+    ・左クリック(タップ)
+    ・上フリック
+    ・右クリック
+    ・無効な入力(押しっぱなし)
+    end note
+ps <-- ic
+deactivate ic
+
+ps -> pc : UpdatePlayer()
+activate pc
+
+  pc -> pc : InputCheck()
+  activate pc
+
+    pc -> ic : GetIsTap()
+    activate ic
+    pc <- ic
+    deactivate ic
+
+    alt if : GetIsTap()
+      pc -> ic : GetTapObjTag()
+      activate ic
+          ic->cc : GetRayHitObjTag()
+          activate cc
+          ic<-cc : Tag
+          deactivate cc
+      pc <- ic : Tag
+      deactivate ic
+
+      alt if : Tag == TagGround
+         note right of pc : isInputMove = true (移動)
+         else if : Tag == TagEnemy
+         note right of pc : isInputAttack = true (攻撃)
+      end
+
+    end
+
+    pc -> ic : GetIsUpFlick()
+    activate ic
+    pc <- ic
+    deactivate ic
+
+    pc -> ic : GetInputisRightClick()
+    activate ic
+    pc <- ic
+    deactivate ic
+
+    alt if : GetIsUpFlick() || GetInputisRightClick()
+      note right of pc : isInputJump = true (ジャンプ)
+    end
+  deactivate pc
+
+  pc -> pc : Move() 移動処理
+  activate pc
+  deactivate pc
+
+  pc -> pc : Jump() ジャンプ処理
+  activate pc
+  deactivate pc
+
+  pc -> pc : Attack() 攻撃処理
+  activate pc
+  deactivate pc
+
+ps <-- pc
+deactivate pc
+
+@enduml

@@ -1,0 +1,94 @@
+@startuml
+
+participant Unity #LightGreen
+
+participant Enemy01Controller        as ec
+participant Enemy01ReceiveDamage     as erd
+participant PlayerController         as pc
+participant PlayerAttack01Controller as pac
+
+Unity -> pc : Update()→UpdatePlayer()
+activate pc
+  pc -> pc : Attack()
+  activate pc
+    note right of pc : タップした敵オブジェクトを取得
+    pc -> pc : コルーチン GenerateFireBall(GameObject TapObj)
+    activate pc
+      note right of pc : 0.25秒待つ
+
+      note right of pc : 頭上に"PlayerAttack01FireBall"オブジェクトを生成
+      pc -> pac : SetPos(v)
+      pc -> pac : SetPower(power)
+      pc -> pac : SetTargetObj(TapObj)
+      pc -> pac : SetTag("TagPlayerAttack")
+
+      note right of pac : power, Tagをセット.\n初期位置, TapObj から進行方向を算出.
+
+    pc <-- pc
+    deactivate pc
+  pc <-- pc
+  deactivate pc
+Unity <-- pc
+deactivate pc
+
+Unity -> pac : FixedUpdate()
+activate pac
+  note right of pac : 進行方向へ進む\nステージ外に出たら自身を破棄する
+Unity <-- pac
+deactivate pac
+
+Unity -> pac : OnTriggerEnter(Collider collision)
+activate pac
+  note right of pac : "ParticleExplosion"(爆発エフェクト)を生成\n1フレーム後に自身を破棄する
+Unity <-- pac
+deactivate pac
+
+Unity -> erd : OnTriggerEnter(Collider collision)
+activate erd
+  note right of erd : 攻撃との衝突判定
+  alt if : collision.tag == TagPlayerAttack
+    erd -> pac : GetPower()
+    activate pac
+    erd <- pac : power
+    deactivate pac
+    note right of erd : isReceiveDamageEnter = true
+    note right of erd : damage = power
+  end
+Unity <-- erd
+deactivate erd
+
+Unity -> erd : FixedUpdate()
+activate erd
+   alt if : isReceiveDamageEnter
+    note right of erd : isReceiveDamage = true
+   else
+    note right of erd : isReceiveDamage = false
+   end
+   note right of erd : isReceiveDamageEnter = false
+Unity <-- erd
+deactivate erd
+
+Unity -> ec : FixedUpdate()
+activate ec
+  ec -> ec : ReceiveDamageCheck()
+  activate ec
+
+    ec -> erd : GetIsReceiveDamage()
+    activate erd
+    ec <- erd : isReceiveDamage
+    deactivate erd
+
+    ec -> erd : GetDamege()
+    activate erd
+    ec <- erd : damage
+    deactivate erd
+
+    note right of ec : ダメージを受ける処理
+
+  ec <-- ec
+  deactivate ec
+
+Unity <-- ec
+deactivate ec
+
+@enduml

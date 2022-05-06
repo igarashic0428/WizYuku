@@ -1,0 +1,60 @@
+@startuml
+
+== Update ==
+
+participant Stage1Manager               as sm
+participant PlayerController            as pc
+participant GoalController              as gc
+participant MissionBoardController      as mbc
+participant ReStartMenuCanvasController as rsmcc
+participant TimerBoardController        as tbc
+
+alt if : 敵が減った
+    sm -> mbc : 更新要求
+    activate mbc
+        note right of mbc : ミッションの更新
+    sm <-- mbc
+    deactivate mbc
+end
+
+alt if : 敵が全て倒された
+    sm -> gc : SetActiveGoal()
+    activate gc
+        note right of gc : ゴールをアクティブにする
+    sm <-- gc
+    deactivate gc
+end
+
+
+sm -> gc : GetIsGoal()
+activate gc
+sm <- gc
+deactivate gc
+
+alt if : GetIsGoal()
+    sm -> rsmcc : DrawGoalMenu()
+    activate rsmcc
+        note right of rsmcc : ゴールしたことを表示
+    sm <-- rsmcc
+    deactivate rsmcc
+
+    sm -> tbc : SetStop()
+    activate tbc
+        note right of tbc : タイマー停止
+    sm <-- tbc
+    deactivate tbc
+end
+
+sm -> pc : GetIsGameOver()
+activate pc
+sm <- pc
+deactivate pc
+alt if : GetIsGameOver()
+    sm -> rsmcc : DrawGameOverMenu();
+    activate rsmcc
+        note right of rsmcc : ゲームオーバーしたことを表示
+    sm <-- rsmcc
+    deactivate rsmcc
+end
+
+@enduml

@@ -1,0 +1,87 @@
+@startuml
+
+participant Unity #LightGreen
+participant PlayerController          as pc
+participant PlayerReceiveDamage       as prd
+participant Enemy01Controller         as ec
+participant Enemy01Attack01Controller as eac
+
+Unity -> ec : FixedUpdate()
+activate ec
+  ec -> ec : Attack01()
+  activate ec
+    note right of ec : 拳の子オブジェクトとしてEnemy01Attack01を生成
+
+    ec -> eac : SetPower(power)
+    activate eac
+    ec <-- eac
+    deactivate eac
+
+    ec -> eac : SetTag("TagEnemyAttack")
+    activate eac
+    ec <-- eac
+    deactivate eac
+
+    note right of eac : PowerとTagをセット
+
+  ec <-- ec
+  deactivate ec
+Unity <-- ec
+deactivate ec
+
+Unity -> eac : FixedUpdate()
+activate eac
+  note right of eac : 所定時間経後に自分を破棄する
+Unity <-- eac
+deactivate eac
+
+
+Unity -> prd : OnTriggerEnter(Collider collision)
+activate prd
+  note right of prd : 攻撃との衝突判定
+  alt if : collision.tag == TagEnemyAttack
+    prd -> eac : GetPower()
+    activate eac
+    prd <- eac : power
+    deactivate eac
+    note right of prd : isReceiveDamageEnter = true
+    note right of prd : damage = power
+  end
+Unity <-- prd
+deactivate prd
+
+Unity -> prd : FixedUpdate()
+activate prd
+   alt if : isReceiveDamageEnter
+    note right of prd : isReceiveDamage = true
+   else
+    note right of prd : isReceiveDamage = false
+   end
+   note right of prd : isReceiveDamageEnter = false
+Unity <-- prd
+deactivate prd
+
+Unity -> pc : FixedUpdate()
+activate pc
+  pc -> pc : ReceiveDamageCheck()
+  activate pc
+
+    pc -> prd : GetIsReceiveDamage()
+    activate prd
+    pc <- prd : isReceiveDamage
+    deactivate prd
+
+    pc -> prd : GetDamege()
+    activate prd
+    pc <- prd : damage
+    deactivate prd
+
+    note right of pc : ダメージを受ける処理
+
+  pc <-- pc
+  deactivate pc
+
+Unity <-- pc
+deactivate pc
+
+@enduml
